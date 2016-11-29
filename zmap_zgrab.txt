@@ -1,0 +1,58 @@
+1、安装zmap
+网上下载源码编译
+
+2、安装go环境 
+vi  /etc/profile  在最后加入
+export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin
+
+source /etc/profile  让立即生效
+wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz  如果下载不了，去百度搜索go的安装包
+解压，放在/usr/local  
+
+用go命令验证
+----------------------------------------------------------
+3、安装 zgrab 
+先设置 GOPATH 环境变量
+go get github.com/zmap/zgrab
+cd $GOPATH/src/github.com/zmap/zgrab
+go build
+
+
+zmap扫描80端口网段
+zmap -p 80 119.30.16.0/20 -o zmap_results.csv 119.30.16.0/20
+
+
+cat zmap_results.csv| zgrab –port 80 –data http-req --output-file=banners.json
+
+
+
+-------------------------------------------------------------------------
+测试 案例
+root@kali:~/Desktop/zmap# cat zmap_results.csv 
+118.184.180.46
+103.41.53.163
+
+root@kali:~/Desktop/zmap# cat http-req 
+GET / HTTP/1.1
+Host: %s
+
+
+root@kali:~/Desktop/zmap#cat zmap_results.csv| zgrab –port 80 –data http-req --output-file=banners.json
+
+{
+    "ip": "118.184.180.46",
+    "timestamp": "2016-11-28T11:59:18-05:00",
+    "data": {
+        "read": "HTTP/1.1 200 OK\r\nServer: nginx/1.11.3\r\nDate: Mon, 28 Nov 2016 16:59:07 GMT\r\nContent-Type: text/html\r\nContent-Length: 612\r\nLast-Modified: Mon, 27 Jun 2016 07:56:31 GMT\r\nConnection: keep-alive\r\nETag: \"5770dc2f-264\"\r\nAccept-Ranges: bytes\r\n\r\n\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\u003chead\u003e\n\u003ctitle\u003eWelcome to nginx!\u003c/title\u003e\n\u003cstyle\u003e\n    body {\n        width: 35em;\n        margin: 0 auto;\n        font-family: Tahoma, Verdana, Arial, sans-serif;\n    }\n\u003c/style\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n\u003ch1\u003eWelcome to nginx!\u003c/h1\u003e\n\u003cp\u003eIf you see this page, the nginx web server is successfully installed and\nworking. Further configuration is required.\u003c/p\u003e\n\n\u003cp\u003eFor online documentation and support please refer to\n\u003ca href=\"http://nginx.org/\"\u003enginx.org\u003c/a\u003e.\u003cbr/\u003e\nCommercial support is available at\n\u003ca href=\"http://nginx.com/\"\u003enginx.com\u003c/a\u003e.\u003c/p\u003e\n\n\u003cp\u003e\u003cem\u003eThank you for using nginx.\u003c/em\u003e\u003c/p\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n",
+        "write": "GET / HTTP/1.1\r\nHost: 118.184.180.46\r\n\r\n"
+    }
+}
+{
+    "ip": "103.41.53.163",
+    "timestamp": "2016-11-28T11:59:18-05:00",
+    "data": {
+        "read": "HTTP/1.1 200 OK\r\nDate: Mon, 28 Nov 2016 16:59:17 GMT\r\nServer: Apache/2.2.11 (Unix) DAV/2 PHP/5.2.14\r\nLast-Modified: Mon, 28 Nov 2016 07:43:48 GMT\r\nETag: \"26c00c-1b4ec-54257a1d17500\"\r\nAccept-Ranges: bytes\r\nContent-Length: 111852\r\nMS-Author-Via: DAV\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n",
+        "write": "GET / HTTP/1.1\r\nHost: 103.41.53.163\r\n\r\n"
+    }
+}
